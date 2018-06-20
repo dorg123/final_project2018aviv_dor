@@ -20,12 +20,11 @@ subseqs = list(sf.subsequences(seq, 18)) + list(sf.subsequences(seq, 19)) + list
 print(time())
 print(len(subseqs))
 d = dict()
-for subseq in subseqs:
-    time()
-    d[subseq] = list(seq.find(subseq) for seq in r.data.values())
-    print(time())
 with open('subseqs.txt', 'w') as f:
-    for subseq, lst in d.items():
+    for subseq in subseqs:
+        time()
+        lst = list(seq.find(subseq) for seq in r.data.values())
+        print(time())
         mens = len(lst) - lst.count(-1)
         avspot = (sum(lst) + lst.count(-1)) / mens
         f.write('{}\t{}\t{:.2f}\n'.format(subseq, mens, avspot))
