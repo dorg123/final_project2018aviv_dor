@@ -34,7 +34,7 @@ def compare(*seqs):
 def average(*seqs):
     max_len = max(map(len, seqs))
     new_seqs = list(map(lambda seq: list(seq + '-' * (max_len - len(seq))), seqs))
-    histogram_list = list(max(histogram(pos), key=lambda x: x[1])[0] for pos in zip(*new_seqs))
+    histogram_list = list(max(plain_histogram(pos), key=lambda x: x[1])[0] for pos in zip(*new_seqs))
     while '-' in histogram_list:
         histogram_list.remove('-')
     return ''.join(histogram_list).rstrip('-')
@@ -123,8 +123,13 @@ def match(s, sub, similarity_range, start=-1, end=-1):
         return len(comps), comps
 
 
-def histogram(lst):
+def plain_histogram(lst):
     return list((key, lst.count(key)) for key in sorted(set(lst)))
+
+
+def number_histogram(lst, size):
+    new = list(map(lambda x: round(x / size) * size, lst))
+    return list((key, new.count(key)) for key in sorted(set(new)))
 
 
 def subsequences(sequence, length):
