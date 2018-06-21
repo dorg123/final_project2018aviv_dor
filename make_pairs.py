@@ -1,3 +1,11 @@
+#############################################
+# W   W   A   RRR   N   N IIIII N   N  GGG  #
+# W   W  A A  R  R  NN  N   I   NN  N G     #
+# W W W AAAAA RRR   N N N   I   N N N G  GG #
+#  W W  A   A R  R  N  NN   I   N  NN G   G #
+#  W W  A   A R   R N   N IIIII N   N  GGG  #
+#############################################
+# This execution takes approximately 30 minutes to complete.
 import read
 import sequence_funcs as sf
 
@@ -26,4 +34,5 @@ with open('pairs.txt', 'w') as f:
     for subseq1, subseq2 in pairs:
         av, seqnum, hist = explore_pair(subseq1, subseq2, sequences)
         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(subseq1, subseq2, seqnum, av, hist[400], hist[500]))
+        print('*')
 print('done')

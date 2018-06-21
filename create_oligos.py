@@ -1,5 +1,11 @@
 #############################################
 # W   W   A   RRR   N   N IIIII N   N  GGG  #
+# W   W  A A  R  R  NN  N   I   NN  N G     #
+# W W W AAAAA RRR   N N N   I   N N N G  GG #
+#  W W  A   A R  R  N  NN   I   N  NN G   G #
+#  W W  A   A R   R N   N IIIII N   N  GGG  #
+#############################################
+# This execution takes approximately 1 hour to complete.
 import read
 import sequence_funcs as sf
 # read database
