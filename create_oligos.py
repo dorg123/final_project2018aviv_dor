@@ -24,7 +24,7 @@ for subseq in subseqs[1800:3600]:
     # calculate the average location
     avspot = (sum(lst) + lst.count(-1)) / mens
     # and save the data
-    lines.append((len(subseq), mens, avspot, subseq))
+    lines.append((str(len(subseq)), str(mens), str(avspot), subseq))
     print('*')
 # sort the data
 lines.sort(key=lambda x: int(x[1]), reverse=True)
