@@ -20,30 +20,18 @@ class FileReader:
             return None
 
     def __str__(self):
-        return 'fasta.FileReader: {}, {} entries' \
+        return 'read.FileReader: {}, {} entries' \
             .format(self._filename, len(self._data))
 
     def __repr__(self):
-        return 'fasta.FastaReader({})<length: {}>' \
+        return 'read.FileReader({})<length: {}>' \
             .format(self._filename, len(self._data))
 
 
 class FastaReader(FileReader):
     def _read(self, accession=None, read_head=lambda x: x):
         with open(self._filename, 'r') as f:
-            info = None
-            self._data = dict()
-            flag = False
-            for line in f:
-                if line.startswith('>'):
-                    if flag:
-                        break
-                    info = read_head(line.rstrip('\n').lstrip('>'))
-                    if info == accession:
-                        flag = True
-                else:
-                    if accession is None or flag:
-                        self._data[info] = self._data.get(info, '') + line.rstrip('\n')
+            self._data = fasta_reader(f, accession, read_head)
 
     @staticmethod
     def read_head(head, raw=False):
@@ -83,31 +71,29 @@ class TabReader(FileReader):
     def _read(self):
         with open(self._filename, 'r') as f:
             lines = f.readlines()
-        it = iter(lines)
-        self._head = next(it).rstrip('\n').split('\t')
-        self._data = list(dict(zip(self._head, line.rstrip('\n').split('\t'))) for line in it)
+        self._data = tab_reader(lines, True)
 
     def __str__(self):
-        return 'fasta.TabReader: {} (head: {}), {} entries' \
+        return 'read.TabReader: {} (head: {}), {} entries' \
             .format(self.filename, ', '.join(self.head), len(self.data))
 
     def __repr__(self):
-        return 'fasta.TabReader({})<length: {}; head: {}>' \
+        return 'read.TabReader({})<length: {}; head: {}>' \
             .format(self.filename, len(self.data), self.head)
 
 
 class MapReader(FileReader):
-    def _read(self):
+    def _read(self, accession=None):
         with open(self._filename, 'r') as f:
             lines = f.readlines()
-        self._data = dict((a, b.replace('\t', ' - ')) for a, _, b in (l.rstrip('\n').partition('\t') for l in lines))
+        self._data = tab_reader(lines, False)
 
     def __str__(self):
-        return 'fasta.SimplifiedTabReader: {}, {} entries' \
+        return 'read.MapReader: {}, {} entries' \
             .format(self.filename, len(self.data))
 
     def __repr__(self):
-        return 'fasta.SimplifiedTabReader({})<length: {}>' \
+        return 'read.MapReader({})<length: {}>' \
             .format(self.filename, len(self.data))
 
 
@@ -115,23 +101,7 @@ class FastqReader(FileReader):
     def _read(self):
         with open(self._filename, 'r') as f:
             lines = list(line.rstrip('\n') for line in f.readlines())
-        self._data = dict()
-        head = ''
-        reading = False
-        for line in lines:
-            if line.startswith('@'):
-                head = line.lstrip('@')
-                reading = True
-                self._data[head] = '', ''
-            elif line.startswith('+'):
-                reading = False
-            else:
-                s, a = self._data[head]
-                if reading:
-                    s += line
-                else:
-                    a += line
-                self._data[head] = s, a
+        self._data = fastq_reader(lines)
 
     def __str__(self):
         return 'fasta.FastqReader: {}, {} entries' \
@@ -421,3 +391,49 @@ class PdbReader(FileReader):
         for line in lines:
             d[line[0]].append(line[1:])
         self._data = d
+
+
+def fasta_reader(lines, accession=None, read_head=lambda x: x):
+    d = dict()
+    info = None
+    flag = False
+    for line in lines:
+        if line.startswith('>'):
+            if flag:
+                break
+            info = read_head(line.rstrip('\n').lstrip('>'))
+            if info == accession:
+                flag = True
+        else:
+            if accession is None or flag:
+                d[info] = d.get(info, '') + line.rstrip('\n')
+    return d
+
+
+def tab_reader(lines, common_head=False):
+    it = iter(lines)
+    if common_head:
+        head = next(it).rstrip('\n').split('\t')
+        return list(dict(zip(head, line.rstrip('\n').split())) for line in it)
+    return list(line.rstrip('\n').split() for line in it)
+
+
+def fastq_reader(lines):
+    d = dict()
+    head = ''
+    reading = False
+    for line in lines:
+        if line.startswith('@'):
+            head = line.lstrip('@')
+            reading = True
+            d[head] = '', ''
+        elif line.startswith('+'):
+            reading = False
+        else:
+            s, a = d[head]
+            if reading:
+                s += line
+            else:
+                a += line
+            d[head] = s, a
+    return d
