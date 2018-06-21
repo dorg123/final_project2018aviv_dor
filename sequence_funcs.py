@@ -128,8 +128,7 @@ def plain_histogram(lst):
 
 
 def number_histogram(lst, size):
-    new = list(map(lambda x: round(x / size) * size, lst))
-    return list((key, new.count(key)) for key in sorted(set(new)))
+    return plain_histogram(list(map(lambda x: round(x / size) * size, lst)))
 
 
 def subsequences(sequence, length):
