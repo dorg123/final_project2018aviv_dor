@@ -16,7 +16,7 @@ subseqs = list(sf.subsequences(seq, 18)) + list(sf.subsequences(seq, 19)) + list
           + list(sf.subsequences(seq, 21)) + list(sf.subsequences(seq, 22))
 # iterate over the subsequences
 lines = []
-for subseq in subseqs[1800:3600]:
+for subseq in subseqs[:1800]:
     # for each one, iterate over the database and seek their position in each sequence
     lst = list(seq.find(subseq) for seq in r.data.values())
     # count how many sequences contain the specific subsequence

@@ -124,7 +124,7 @@ def match(s, sub, similarity_range, start=-1, end=-1):
 
 
 def plain_histogram(lst):
-    return list((key, lst.count(key)) for key in sorted(set(lst)))
+    return dict((key, lst.count(key)) for key in sorted(set(lst)))
 
 
 def number_histogram(lst, size):
