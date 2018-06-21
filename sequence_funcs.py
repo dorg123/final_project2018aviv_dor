@@ -134,7 +134,7 @@ def number_histogram(lst, size):
 
 def subsequences(sequence, length):
     if len(sequence) <= length:
-        return [sequence] if len(sequence == length) else []
+        return [sequence] if len(sequence) == length else []
     else:
         for i in range(len(sequence) - length):
             yield sequence[i:i + length]
