@@ -68,10 +68,10 @@ class TabReader(FileReader):
     def head(self):
         return self._head
 
-    def _read(self):
+    def _read(self, accession=None):
         with open(self._filename, 'r') as f:
             lines = f.readlines()
-        self._data = tab_reader(lines, True)
+        self._head, self._data = tab_reader(lines, True)
 
     def __str__(self):
         return 'read.TabReader: {} (head: {}), {} entries' \
@@ -414,7 +414,7 @@ def tab_reader(lines, common_head=False):
     it = iter(lines)
     if common_head:
         head = next(it).rstrip('\n').split('\t')
-        return list(dict(zip(head, line.rstrip('\n').split())) for line in it)
+        return head, list(dict(zip(head, line.rstrip('\n').split())) for line in it)
     return list(line.rstrip('\n').split() for line in it)
 
 
