@@ -5,26 +5,34 @@
 #  W W  A   A R  R  N  NN   I   N  NN G   G #
 #  W W  A   A R   R N   N IIIII N   N  GGG  #
 #############################################
-# This execution takes approximately 5-10 minutes to complete.
-import read
+# This execution takes approximately 7-8 hours to complete.
+import fasta
 from time import time
-r = read.TabReader('pairs_by_hist400.txt')
-db = read.FastaReader('eztaxon_qiime_full.fasta')
+r = fasta.TabReader('pairs_by_hist400.txt')
+db = fasta.FastaReader('eztaxon_qiime_full.fasta')
 with open('pairs_resolution.txt', 'w') as f:
-    f.write('SubSeq1\tSubSeq2\tSeqNum\tRes\tAvLen\tHist400\tHist500\n')
+    f.write('subseq1\tsubseq2\tseqnum\tres\tavlen\thist400\thist500\n')
     for record in r.data:
         seqs = []
         start = time()
         for seq in db.data.values():
-            if record['SubSeq1'] not in seq or record['SubSeq2'] not in seq:
+            if record['subseq1'] not in seq or record['subseq2'] not in seq:
                 continue
-            subseq1loc, subseq2loc = tuple(sorted([(seq.find(record['SubSeq1']), len(record['SubSeq1'])),
-                                                   (seq.find(record['SubSeq2']), len(record['SubSeq2']))]))
+            subseq1loc, subseq2loc = tuple(sorted([(seq.find(record['subseq1']), len(record['subseq1'])),
+                                                   (seq.find(record['subseq2']), len(record['subseq2']))]))
             seqs.append(seq[subseq1loc[0]:subseq2loc[0] + subseq2loc[1]])
-        hist = set(seqs)
+        hist = []
+        for seq in seqs:
+            tmp = seq
+            seqs.remove(tmp)
+            if tmp in seqs:
+                while tmp in seqs:
+                    seqs.remove(tmp)
+            else:
+                hist.append(len(tmp))
         resolution = (len(hist) / len(seqs)) * 100
-        f.write('{d[SubSeq1]}\t{d[SubSeq2]}\t{d[SeqNum]}\t{res:.2f}\t{d[AvLoc]}\t{d[Hist400]}\t{d[Hist500]}\n'
-                .format(d=record, res=resolution))
+        f.write('{d[subseq1]}\t{d[subseq2]}\t{d[seqnum]}\t{res:.3f}\t{av:.1f}\t{d[hist400]}\t{d[hist500]}\n'
+                .format(d=record, res=resolution, av=sum(hist) / len(hist)))
         end = time()
         print((end - start) * 1000)
 print('done')

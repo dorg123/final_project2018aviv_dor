@@ -6,17 +6,16 @@
 #  W W  A   A R   R N   N IIIII N   N  GGG  #
 #############################################
 # This execution takes approximately 1 hour to complete.
-import read
-import sequence_funcs as sf
+import fasta
 # read database
-r = read.FastaReader('eztaxon_qiime_full.fasta')
+r = fasta.FastaReader('eztaxon_qiime_full.fasta')
 seq = r['130648']  # e.coli 16s
 # create subsequences
-subseqs = list(sf.subsequences(seq, 18)) + list(sf.subsequences(seq, 19)) + list(sf.subsequences(seq, 20))\
-          + list(sf.subsequences(seq, 21)) + list(sf.subsequences(seq, 22))
+subseqs = list(fasta.subsequences(seq, 18)) + list(fasta.subsequences(seq, 19)) + list(fasta.subsequences(seq, 20))\
+          + list(fasta.subsequences(seq, 21)) + list(fasta.subsequences(seq, 22))
 # iterate over the subsequences
 lines = []
-for subseq in subseqs[:1800]:
+for subseq in subseqs:
     # for each one, iterate over the database and seek their position in each sequence
     lst = list(seq.find(subseq) for seq in r.data.values())
     # count how many sequences contain the specific subsequence
@@ -29,6 +28,7 @@ for subseq in subseqs[:1800]:
 # sort the data
 lines.sort(key=lambda x: int(x[1]), reverse=True)
 with open('subseqs.txt', 'w') as f:  # and write it to a file
+    f.write('len\tseqnum\tavloc\tsubseq\n')
     for line in lines:
         f.write('\t'.join(line) + '\n')
 print('done')

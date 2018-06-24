@@ -6,8 +6,7 @@
 #  W W  A   A R   R N   N IIIII N   N  GGG  #
 #############################################
 # This execution takes approximately 30 minutes to complete.
-import read
-import sequence_funcs as sf
+import fasta
 
 
 def explore_pair(subseq1, subseq2, sequences):
@@ -17,20 +16,20 @@ def explore_pair(subseq1, subseq2, sequences):
     lst2 = [i for i in lst2 if i != -1]
     lstz = [abs(l1 - l2) if l1 != -1 and l2 != -1 else -1 for l1, l2 in zip(lst1, lst2)]
     lstz = [i for i in lstz if i != -1]
-    return sum(lstz) / len(lstz), len(lstz), sf.number_histogram(lstz, 100)
+    return sum(lstz) / len(lstz), len(lstz), fasta.number_histogram(lstz, 100)
 
 
-reader = read.MapReader('subseqs.txt')
-filtered = [seq for seq in reader.data if int(seq[1]) > 40000]
+reader = fasta.TabReader('subseqs.txt')
+filtered = [seq for seq in reader.data if int(seq['seqnum']) > 40000]
 pairs = []
 for subseq1 in filtered:
     for subseq2 in filtered:
-        if 600 > float(subseq1[2]) - float(subseq2[2]) > 400:
-            pairs.append((subseq1[3], subseq2[3]))
-reader = read.FastaReader('eztaxon_qiime_full.fasta')
+        if 600 > float(subseq1['avloc']) - float(subseq2['avloc']) > 400:
+            pairs.append((subseq1['subseq'], subseq2['subseq']))
+reader = fasta.FastaReader('eztaxon_qiime_full.fasta')
 sequences = reader.data.values()
 with open('pairs.txt', 'w') as f:
-    f.write('SubSeq1\tSubSeq2\tSeqNum\tAvLoc\tHist400\tHist500\n')
+    f.write('subseq1\tsubseq2\tseqnum\tavlen\thist400\thist500\n')
     for subseq1, subseq2 in pairs:
         av, seqnum, hist = explore_pair(subseq1, subseq2, sequences)
         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(subseq1, subseq2, seqnum, av, hist[400], hist[500]))
